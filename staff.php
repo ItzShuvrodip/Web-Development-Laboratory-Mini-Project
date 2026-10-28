@@ -1,308 +1,142 @@
 <?php
-// ====================================================================
-// staff.php - Canteen Staff & Kitchen Operations Dashboard
-// Features: Protected Login (admin / admin), Live Order Status Management,
-//           Menu Item Stock Availability Toggle, Demonstration Reset
-// ====================================================================
+// ==============================================================================
+// staff.php - Kitchen Staff & Operations Portal (Status & Stock Management)
+// ==============================================================================
+require_once "db.php"; // Connect to DB and access active session
 
-// Connect to database and initialize unique project session & cart normalizer
-require_once "db.php";
-
-// --------------------------------------------------------------------
-// Section 1: Handle Staff Logout
-// --------------------------------------------------------------------
-if (isset($_GET['action']) && $_GET['action'] === 'logout') {
-    unset($_SESSION['is_staff_logged_in']);
-    $_SESSION['flash_message'] = "Logged out of staff panel successfully.";
-    header("Location: staff.php");
-    exit;
+// === 1. STAFF LOGOUT ACTION ===
+if (($_GET['action'] ?? '') === 'logout') {
+    unset($_SESSION['is_staff_logged_in']); // Clear staff session flag
+    $_SESSION['flash'] = "Logged out successfully.";
+    header("Location: staff.php"); exit;
 }
 
-// --------------------------------------------------------------------
-// Section 2: Handle Staff Login Authentication (admin / admin)
-// --------------------------------------------------------------------
-$login_error = "";
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST' && isset($_POST['action']) && $_POST['action'] === 'login') {
-    $username = isset($_POST['username']) ? trim($_POST['username']) : '';
-    $password = isset($_POST['password']) ? trim($_POST['password']) : '';
-
-    // Verify credentials: admin / admin
-    if ($username === 'admin' && $password === 'admin') {
-        $_SESSION['is_staff_logged_in'] = true;
-        $_SESSION['flash_message'] = "Welcome back, Canteen Admin!";
-        header("Location: staff.php");
-        exit;
+// === 2. STAFF LOGIN AUTHENTICATION (admin / admin) ===
+// [SPOT-CHANGE]: Change staff username and password here
+if (($_POST['action'] ?? '') === 'login') {
+    if (($_POST['username'] ?? '') === 'admin' && ($_POST['password'] ?? '') === 'admin') {
+        $_SESSION['is_staff_logged_in'] = true; // Mark session as logged in
+        $_SESSION['flash'] = "Welcome back, Admin!";
     } else {
-        $login_error = "Invalid Username or Password! (Hint: use admin / admin)";
+        $_SESSION['error'] = "Invalid credentials! (Use admin / admin)";
     }
+    header("Location: staff.php"); exit;
 }
 
-// --------------------------------------------------------------------
-// Section 3: If Not Logged In, Display Staff Login Screen
-// --------------------------------------------------------------------
+// === 3. LOGIN FORM (DISPLAYED IF NOT AUTHENTICATED) ===
 if (empty($_SESSION['is_staff_logged_in'])) {
     $page_title = "Staff Login - Canteen System";
     require_once "header.php";
-
-    // Read flash message
-    $flash_msg = "";
-    if (isset($_SESSION['flash_message'])) {
-        $flash_msg = $_SESSION['flash_message'];
-        unset($_SESSION['flash_message']);
-    }
     ?>
-
-    <div style="max-width: 440px; margin: 40px auto; background: #ffffff; border: 1px solid #f0e4d2; border-radius: 14px; padding: 32px; box-shadow: 0 4px 15px rgba(0,0,0,0.06);">
-        <div style="text-align: center; margin-bottom: 25px;">
-            <div style="font-size: 3rem; margin-bottom: 8px;">🔐</div>
-            <h2 style="color: #2d2218; font-size: 1.5rem; margin-bottom: 6px;">Staff Portal Login</h2>
-            <p style="color: #6b5a4a; font-size: 0.9rem;">Sign in to manage kitchen orders and food stock availability.</p>
+    <div style="max-width: 420px; margin: 40px auto; background: #fff; border: 1px solid #f0e4d2; border-radius: 14px; padding: 30px;">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 2.8rem;">🔐</div>
+            <h2>Staff Portal Login</h2>
+            <p style="color: #6b5a4a; font-size: 0.9rem;">Sign in to manage kitchen orders and food stock.</p>
         </div>
-
-        <?php if (!empty($flash_msg)): ?>
-            <div class="alert alert-success" style="padding: 10px 14px; font-size: 0.9rem;">
-                ✅ <?php echo htmlspecialchars($flash_msg); ?>
-            </div>
-        <?php endif; ?>
-
-        <?php if (!empty($login_error)): ?>
-            <div class="alert alert-danger" style="padding: 10px 14px; font-size: 0.9rem;">
-                ⚠️ <?php echo htmlspecialchars($login_error); ?>
-            </div>
-        <?php endif; ?>
-
         <form action="staff.php" method="post">
             <input type="hidden" name="action" value="login">
-
-            <div style="margin-bottom: 16px;">
-                <label for="username" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #2d2218;">
-                    Username / Staff ID:
-                </label>
-                <input type="text" id="username" name="username" required placeholder="admin"
-                       style="width: 100%; padding: 10px 12px; border: 1px solid #d9c7b0; border-radius: 8px; font-size: 0.95rem; color: #2d2218;">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px;">Username:</label>
+                <input type="text" name="username" required placeholder="admin" style="width: 100%; padding: 10px; border: 1px solid #d9c7b0; border-radius: 8px;">
             </div>
-
             <div style="margin-bottom: 20px;">
-                <label for="password" style="display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 6px; color: #2d2218;">
-                    Password:
-                </label>
-                <input type="password" id="password" name="password" required placeholder="•••••"
-                       style="width: 100%; padding: 10px 12px; border: 1px solid #d9c7b0; border-radius: 8px; font-size: 0.95rem; color: #2d2218;">
+                <label style="display: block; font-weight: 600; margin-bottom: 5px;">Password:</label>
+                <input type="password" name="password" required placeholder="admin" style="width: 100%; padding: 10px; border: 1px solid #d9c7b0; border-radius: 8px;">
             </div>
-
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; font-size: 1rem;">
-                Log In to Staff Panel &rarr;
-            </button>
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px;">Log In to Staff Panel &rarr;</button>
         </form>
-
-        <div style="margin-top: 20px; padding: 12px; background: #fdfaf6; border: 1px dashed #d9c7b0; border-radius: 8px; text-align: center; font-size: 0.85rem; color: #6b5a4a;">
-            <strong>Default Credentials:</strong><br>
-            Username: <code style="background: #f6e3c8; color: #8a4b08; padding: 2px 6px; border-radius: 4px; font-weight: 700;">admin</code> &nbsp;|&nbsp; 
-            Password: <code style="background: #f6e3c8; color: #8a4b08; padding: 2px 6px; border-radius: 4px; font-weight: 700;">admin</code>
+        <div style="margin-top: 15px; padding: 10px; background: #fdfaf6; border-radius: 8px; text-align: center; font-size: 0.85rem; color: #6b5a4a;">
+            Default Credentials: <b>admin</b> / <b>admin</b>
         </div>
     </div>
-
-    <?php
-    require_once "footer.php";
-    exit;
+    <?php require_once "footer.php"; exit;
 }
 
-// --------------------------------------------------------------------
-// Section 4: Process Authenticated Staff Actions via POST
-// --------------------------------------------------------------------
-if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
-    $action = isset($_POST['action']) ? trim($_POST['action']) : '';
+// === 4. PROCESS AUTHENTICATED STAFF ACTIONS ===
+$action = $_POST['action'] ?? '';
 
-    // Action 1: Update an Order's Status
-    if ($action === 'update_order_status') {
-        $order_id   = isset($_POST['order_id']) ? (int)$_POST['order_id'] : 0;
-        $new_status = isset($_POST['new_status']) ? trim($_POST['new_status']) : '';
-
-        $allowed_statuses = ['Received', 'Preparing', 'Ready', 'Completed'];
-
-        if ($order_id > 0 && in_array($new_status, $allowed_statuses)) {
-            $stmtGet = $pdo->prepare("SELECT order_number FROM orders WHERE order_id = :id");
-            $stmtGet->execute([':id' => $order_id]);
-            $ordData = $stmtGet->fetch();
-            $token = $ordData ? $ordData['order_number'] : "#$order_id";
-
-            $stmt = $pdo->prepare("UPDATE orders SET order_status = :status WHERE order_id = :id");
-            $stmt->execute([
-                ':status' => $new_status,
-                ':id'     => $order_id
-            ]);
-            $_SESSION['flash_message'] = "Order $token status updated to '$new_status'!";
-        }
-        header("Location: staff.php");
-        exit;
-    }
-
-    // Action 2: Toggle Menu Item Availability
-    if ($action === 'toggle_availability') {
-        $item_id = isset($_POST['item_id']) ? (int)$_POST['item_id'] : 0;
-        if ($item_id > 0) {
-            $itemStmt = $pdo->prepare("SELECT name, is_available FROM menu_items WHERE item_id = :id");
-            $itemStmt->execute([':id' => $item_id]);
-            $item = $itemStmt->fetch();
-
-            if ($item) {
-                $newAvail = ((int)$item['is_available'] === 1) ? 0 : 1;
-                $updateStmt = $pdo->prepare("UPDATE menu_items SET is_available = :avail WHERE item_id = :id");
-                $updateStmt->execute([':avail' => $newAvail, ':id' => $item_id]);
-
-                $statusLabel = ($newAvail === 1) ? "Available (In Stock)" : "Out of Stock";
-                $_SESSION['flash_message'] = "'" . $item['name'] . "' marked as $statusLabel!";
-            }
-        }
-        header("Location: staff.php");
-        exit;
-    }
-
-    // Action 3: Reset / Seed Sample Data
-    if ($action === 'reset_sample_data') {
-        $pdo->exec("DELETE FROM order_items");
-        $pdo->exec("DELETE FROM orders");
-        $pdo->exec("DELETE FROM menu_items");
-
-        // Reset auto-increment sequence counters
-        if ($pdo->getAttribute(PDO::ATTR_DRIVER_NAME) === 'sqlite') {
-            @$pdo->exec("DELETE FROM sqlite_sequence WHERE name IN ('menu_items', 'orders', 'order_items')");
-        } else {
-            @$pdo->exec("ALTER TABLE order_items AUTO_INCREMENT = 1");
-            @$pdo->exec("ALTER TABLE orders AUTO_INCREMENT = 1");
-            @$pdo->exec("ALTER TABLE menu_items AUTO_INCREMENT = 1");
-        }
-
-        // Re-insert standard sample items
-        $insertStmt = $pdo->prepare("
-            INSERT INTO menu_items (name, category, price, description, is_available) 
-            VALUES (:name, :category, :price, :description, :is_available)
-        ");
-
-        $sampleItems = [
-            ['name' => 'Crispy Veg Samosa (2 pcs)', 'category' => 'Snacks', 'price' => 25.00, 'description' => 'Golden fried potato samosas served with tangy mint chutney', 'is_available' => 1],
-            ['name' => 'South Indian Masala Dosa', 'category' => 'Meals', 'price' => 60.00, 'description' => 'Crispy dosa filled with spiced potato masala, served with hot sambar', 'is_available' => 1],
-            ['name' => 'Paneer Butter Roll', 'category' => 'Snacks', 'price' => 70.00, 'description' => 'Fresh wheat wrap stuffed with spiced cottage cheese and onions', 'is_available' => 1],
-            ['name' => 'Special Veg Thali', 'category' => 'Meals', 'price' => 110.00, 'description' => '2 Rotis, Steamed Rice, Dal Tadka, Paneer Sabzi, Salad & Sweet', 'is_available' => 1],
-            ['name' => 'Veg Hakka Noodles', 'category' => 'Meals', 'price' => 80.00, 'description' => 'Stir-fried noodles with crunchy capsicum, cabbage and carrots', 'is_available' => 0],
-            ['name' => 'Cold Coffee with Ice Cream', 'category' => 'Beverages', 'price' => 45.00, 'description' => 'Thick creamy espresso blend topped with vanilla scoop', 'is_available' => 1],
-            ['name' => 'Masala Cutting Chai', 'category' => 'Beverages', 'price' => 15.00, 'description' => 'Freshly brewed aromatic tea with ginger and cardamom', 'is_available' => 1],
-            ['name' => 'Fresh Lemon Soda', 'category' => 'Beverages', 'price' => 30.00, 'description' => 'Chilled sparkling soda with fresh lime, mint and rock salt', 'is_available' => 1]
-        ];
-
-        foreach ($sampleItems as $item) {
-            $insertStmt->execute($item);
-        }
-
-        $_SESSION['flash_message'] = "Database reset to fresh demonstration state with default menu items!";
-        header("Location: staff.php");
-        exit;
-    }
+// Action 1: Update order status (Received -> Preparing -> Ready -> Completed)
+if ($action === 'update_order_status') {
+    $oid = (int)($_POST['order_id'] ?? 0);          // Target order ID
+    $status = $_POST['new_status'] ?? 'Received';   // Selected status from dropdown
+    $stmt = $pdo->prepare("UPDATE orders SET order_status = ? WHERE order_id = ?");
+    $stmt->execute([$status, $oid]);
+    $_SESSION['flash'] = "Order status updated to '$status'!";
+    header("Location: staff.php"); exit;
 }
 
-// --------------------------------------------------------------------
-// Section 5: Authenticated Staff Dashboard View
-// --------------------------------------------------------------------
+// Action 2: Toggle menu item stock availability (1 -> 0 or 0 -> 1)
+if ($action === 'toggle_availability') {
+    $iid = (int)($_POST['item_id'] ?? 0);           // Target food item ID
+    // 1 - is_available flips 1 to 0 and 0 to 1 in a single atomic SQL update
+    $pdo->exec("UPDATE menu_items SET is_available = 1 - is_available WHERE item_id = $iid");
+    $_SESSION['flash'] = "Menu item availability toggled!";
+    header("Location: staff.php"); exit;
+}
+
+// Action 3: Reset demo data (restores default sample items & clears orders)
+if ($action === 'reset_sample_data') {
+    $pdo->exec("DELETE FROM order_items; DELETE FROM orders; DELETE FROM menu_items;"); // Clean all tables
+    $stmt = $pdo->prepare("INSERT INTO menu_items (name, category, price, description, is_available) VALUES (?, ?, ?, ?, ?)");
+    foreach ($sample_items as $item) $stmt->execute($item); // Re-insert initial $sample_items from db.php
+    $_SESSION['flash'] = "Database reset to default menu and empty orders!";
+    header("Location: staff.php"); exit;
+}
+
+// === 5. FETCH DATA FOR STAFF DASHBOARD ===
 $orders = $pdo->query("SELECT * FROM orders ORDER BY order_id DESC LIMIT 30")->fetchAll();
 $menu_items = $pdo->query("SELECT * FROM menu_items ORDER BY category, name")->fetchAll();
 
-$page_title = "Canteen Staff & Kitchen Panel";
-require_once "header.php";
-
-$flash_success = "";
-if (isset($_SESSION['flash_message'])) {
-    $flash_success = $_SESSION['flash_message'];
-    unset($_SESSION['flash_message']);
-}
+$page_title = "Staff & Kitchen Dashboard";
+require_once "header.php"; // Load common navigation header
 ?>
 
+<!-- === 6. STAFF DASHBOARD TOP BAR & CONTROLS === -->
 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
     <div>
-        <h1 class="page-title" style="margin-bottom: 4px;">Canteen Staff &amp; Kitchen Control</h1>
+        <h1 class="page-title" style="margin-bottom: 4px;">Canteen Staff Control</h1>
         <p class="page-description" style="margin-bottom: 0;">Logged in as <strong>admin</strong> &bull; Manage live orders and food stock availability.</p>
     </div>
-
-    <!-- Staff Controls: Reset Demo Data & Logout -->
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <form action="staff.php" method="post" onsubmit="return confirm('Reset all orders and restore default menu?');" style="margin: 0;">
+    <div style="display: flex; gap: 8px;">
+        <!-- 1-Click Reset Demo Data Button -->
+        <form action="staff.php" method="post" onsubmit="return confirm('Reset all demo orders and restore default menu?');">
             <input type="hidden" name="action" value="reset_sample_data">
-            <button type="submit" class="btn btn-secondary btn-sm">
-                🔄 Reset Demo Data
-            </button>
+            <button type="submit" class="btn btn-secondary btn-sm">🔄 Reset Demo Data</button>
         </form>
-
-        <a href="staff.php?action=logout" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to log out?');">
-            🚪 Logout
-        </a>
+        <!-- Logout Button -->
+        <a href="staff.php?action=logout" class="btn btn-danger btn-sm" onclick="return confirm('Log out?');">🚪 Logout</a>
     </div>
 </div>
 
-<!-- Success Message Banner -->
-<?php if (!empty($flash_success)): ?>
-    <div class="alert alert-success">
-        ✅ <?php echo htmlspecialchars($flash_success); ?>
-    </div>
-<?php endif; ?>
-
-<!-- Section 1: Kitchen Order Status Manager -->
+<!-- === 7. KITCHEN ORDER STATUS MANAGER TABLE === -->
 <div class="cart-table-card">
-    <h3 style="margin-bottom: 8px; color: #2d2218;">1. Live Kitchen Order Status Manager</h3>
-    <p style="color: #6b5a4a; font-size: 0.9rem; margin-bottom: 15px;">
-        Advance orders through the lifecycle: <strong>Received &rarr; Preparing &rarr; Ready &rarr; Completed</strong>.
-    </p>
-
+    <h3 style="margin-bottom: 12px;">1. Live Kitchen Order Status Manager</h3>
     <div class="table-responsive">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Order No</th>
-                    <th>Customer</th>
-                    <th>Total</th>
-                    <th>Time</th>
-                    <th>Current Status</th>
-                    <th>Update Status</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Order No</th><th>Customer</th><th>Total</th><th>Time</th><th>Current Status</th><th>Update Status</th></tr></thead>
             <tbody>
                 <?php if (empty($orders)): ?>
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #8a7968; padding: 25px;">
-                            No orders placed yet. Place an order from the <a href="index.php">Menu</a> to test!
-                        </td>
-                    </tr>
+                    <tr><td colspan="6" style="text-align: center; color: #8a7968; padding: 25px;">No orders placed yet.</td></tr>
                 <?php else: ?>
-                    <?php foreach ($orders as $ord): ?>
-                        <?php 
-                            $st = strtolower($ord['order_status']);
-                        ?>
+                    <?php foreach ($orders as $ord): $st = strtolower($ord['order_status']); ?>
                         <tr>
+                            <td><strong><?= htmlspecialchars($ord['order_number']) ?></strong></td>
+                            <td><?= htmlspecialchars($ord['customer_name']) ?><br><small style="color: #6b5a4a;"><?= htmlspecialchars($ord['contact_no']) ?></small></td>
+                            <td>₹<?= number_format($ord['total_amount'], 2) ?></td>
+                            <td><small><?= htmlspecialchars($ord['created_at']) ?></small></td>
+                            <td><span class="status-pill status-<?= $st ?>"><?= htmlspecialchars($ord['order_status']) ?></span></td>
                             <td>
-                                <strong><?php echo htmlspecialchars($ord['order_number']); ?></strong>
-                            </td>
-                            <td>
-                                <?php echo htmlspecialchars($ord['customer_name']); ?><br>
-                                <small style="color: #6b5a4a;"><?php echo htmlspecialchars($ord['contact_no']); ?></small>
-                            </td>
-                            <td>₹<?php echo number_format($ord['total_amount'], 2); ?></td>
-                            <td><small><?php echo htmlspecialchars($ord['created_at']); ?></small></td>
-                            <td>
-                                <span class="status-pill status-<?php echo htmlspecialchars($st); ?>">
-                                    <?php echo htmlspecialchars($ord['order_status']); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <!-- Status change form with PRG -->
-                                <form action="staff.php" method="post" style="display: flex; gap: 5px; align-items: center;">
+                                <!-- Form updating order lifecycle status -->
+                                <form action="staff.php" method="post" style="display: flex; gap: 5px;">
                                     <input type="hidden" name="action" value="update_order_status">
-                                    <input type="hidden" name="order_id" value="<?php echo (int)$ord['order_id']; ?>">
-                                    
-                                    <select name="new_status" style="padding: 6px 8px; border-radius: 6px; border: 1px solid #d9c7b0; font-size: 0.85rem; color: #2d2218; background-color: #ffffff;">
-                                        <option value="Received" <?php echo ($ord['order_status'] === 'Received') ? 'selected' : ''; ?>>Received</option>
-                                        <option value="Preparing" <?php echo ($ord['order_status'] === 'Preparing') ? 'selected' : ''; ?>>Preparing</option>
-                                        <option value="Ready" <?php echo ($ord['order_status'] === 'Ready') ? 'selected' : ''; ?>>Ready</option>
-                                        <option value="Completed" <?php echo ($ord['order_status'] === 'Completed') ? 'selected' : ''; ?>>Completed</option>
+                                    <input type="hidden" name="order_id" value="<?= $ord['order_id'] ?>">
+                                    <select name="new_status" style="padding: 5px 8px; border-radius: 6px; border: 1px solid #d9c7b0;">
+                                        <!-- [SPOT-CHANGE]: Status lifecycle options -->
+                                        <?php foreach (['Received', 'Preparing', 'Ready', 'Completed'] as $opt): ?>
+                                            <option value="<?= $opt ?>" <?= $ord['order_status'] === $opt ? 'selected' : '' ?>><?= $opt ?></option>
+                                        <?php endforeach; ?>
                                     </select>
-
                                     <button type="submit" class="btn btn-primary btn-sm">Set</button>
                                 </form>
                             </td>
@@ -314,51 +148,27 @@ if (isset($_SESSION['flash_message'])) {
     </div>
 </div>
 
-<!-- Section 2: Menu Items Availability Manager -->
+<!-- === 8. MENU ITEM AVAILABILITY MANAGER TABLE === -->
 <div class="cart-table-card">
-    <h3 style="margin-bottom: 8px; color: #2d2218;">2. Menu Item Availability Manager</h3>
-    <p style="color: #6b5a4a; font-size: 0.9rem; margin-bottom: 15px;">
-        Click <strong>"Toggle Availability"</strong> to mark food items in stock or out of stock in real-time.
-    </p>
-
+    <h3 style="margin-bottom: 12px;">2. Menu Item Availability Manager</h3>
     <div class="table-responsive">
         <table class="data-table">
-            <thead>
-                <tr>
-                    <th>Item Name</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
+            <thead><tr><th>Item Name</th><th>Category</th><th>Price</th><th>Status</th><th>Action</th></tr></thead>
             <tbody>
-                <?php foreach ($menu_items as $m): ?>
-                    <?php 
-                        $isAvail = ((int)$m['is_available'] === 1);
-                    ?>
+                <?php foreach ($menu_items as $m): $avail = (int)$m['is_available'] === 1; ?>
                     <tr>
-                        <td><strong><?php echo htmlspecialchars($m['name']); ?></strong></td>
-                        <td><?php echo htmlspecialchars($m['category']); ?></td>
-                        <td>₹<?php echo number_format($m['price'], 2); ?></td>
+                        <td><strong><?= htmlspecialchars($m['name']) ?></strong></td>
+                        <td><?= htmlspecialchars($m['category']) ?></td>
+                        <td>₹<?= number_format($m['price'], 2) ?></td>
+                        <td><span class="badge <?= $avail ? 'badge-available' : 'badge-unavailable' ?>"><?= $avail ? '● In Stock' : '✕ Out of Stock' ?></span></td>
                         <td>
-                            <?php if ($isAvail): ?>
-                                <span class="badge badge-available">● In Stock (Available)</span>
-                            <?php else: ?>
-                                <span class="badge badge-unavailable">✕ Out of Stock</span>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <!-- Toggle Form with PRG -->
-                            <form action="staff.php" method="post" style="display: inline;">
+                            <!-- 1-Click Form to toggle availability -->
+                            <form action="staff.php" method="post">
                                 <input type="hidden" name="action" value="toggle_availability">
-                                <input type="hidden" name="item_id" value="<?php echo (int)$m['item_id']; ?>">
-                                
-                                <?php if ($isAvail): ?>
-                                    <button type="submit" class="btn btn-danger btn-sm">Mark Out of Stock</button>
-                                <?php else: ?>
-                                    <button type="submit" class="btn btn-success btn-sm">Mark Available</button>
-                                <?php endif; ?>
+                                <input type="hidden" name="item_id" value="<?= $m['item_id'] ?>">
+                                <button type="submit" class="btn <?= $avail ? 'btn-danger' : 'btn-success' ?> btn-sm">
+                                    <?= $avail ? 'Mark Out of Stock' : 'Mark Available' ?>
+                                </button>
                             </form>
                         </td>
                     </tr>
@@ -368,7 +178,4 @@ if (isset($_SESSION['flash_message'])) {
     </div>
 </div>
 
-<?php
-// Include shared footer
-require_once "footer.php";
-?>
+<?php require_once "footer.php"; ?> <!-- Load common footer -->
