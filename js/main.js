@@ -40,12 +40,11 @@ $(document).ready(function () {
                 $.each(res.orders, function (_, o) {
                     var st = (o.order_status || "").toLowerCase();
                     var label = st === "ready" ? "READY" : (st === "preparing" ? "Cooking" : "Queued");
-                    var bg = st === "ready" ? "#d3f9d8" : (st === "preparing" ? "#fff9db" : "#e7f5ff");
 
-                    // Build column card HTML
-                    var card = '<div style="border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;background:' + bg + ';">' +
-                        '<div><strong style="font-size:1.2rem;display:block;letter-spacing:1px;">' + $("<div>").text(o.order_number).html() + '</strong>' +
-                        '<span style="font-size:0.85rem;">' + $("<div>").text(o.customer_name).html() + '</span></div>' +
+                    // Build column card HTML using CSS classes (no inline styles)
+                    var card = '<div class="queue-card queue-card-' + st + '">' +
+                        '<div><strong class="token-text token-' + st + '">' + $("<div>").text(o.order_number).html() + '</strong>' +
+                        '<span class="text-sm">' + $("<div>").text(o.customer_name).html() + '</span></div>' +
                         '<span class="status-pill status-' + st + '">' + label + '</span></div>';
 
                     if (lists[st] !== undefined) {
@@ -53,8 +52,8 @@ $(document).ready(function () {
                         counts[st]++;
                     }
 
-                    // Build table row HTML
-                    rows += '<tr><td><strong style="color:#e8590c;">' + $("<div>").text(o.order_number).html() + '</strong></td>' +
+                    // Build table row HTML using CSS classes (no inline styles)
+                    rows += '<tr><td><strong class="token-orange">' + $("<div>").text(o.order_number).html() + '</strong></td>' +
                         '<td>' + $("<div>").text(o.customer_name).html() + '</td>' +
                         '<td>' + $("<div>").text(o.created_at).html() + '</td>' +
                         '<td><strong>₹' + parseFloat(o.total_amount).toFixed(2) + '</strong></td>' +
@@ -70,7 +69,7 @@ $(document).ready(function () {
                 $("#ready-orders-list").html(lists.ready || '<div class="empty-col-msg">No orders in this stage</div>');
                 $("#prep-orders-list").html(lists.preparing || '<div class="empty-col-msg">No orders in this stage</div>');
                 $("#received-orders-list").html(lists.received || '<div class="empty-col-msg">No orders in this stage</div>');
-                $("#all-orders-tbody").html(rows || '<tr><td colspan="5" style="text-align:center;padding:24px;">No orders found.</td></tr>');
+                $("#all-orders-tbody").html(rows || '<tr><td colspan="5" class="table-empty-td">No orders found.</td></tr>');
                 $("#queue-last-updated").text("Last updated: " + new Date().toLocaleTimeString());
             });
         }

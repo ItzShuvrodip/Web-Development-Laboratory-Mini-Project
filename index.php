@@ -45,7 +45,7 @@ require_once "header.php"; // Load navigation header
                 <div class="item-price">₹<?= number_format($item['price'], 2) ?></div> <!-- Unit Price in Rupees -->
                 <?php if ($avail): ?>
                     <!-- Form submitting selected item and quantity to cart.php -->
-                    <form action="cart.php" method="post" style="display: flex; gap: 6px;">
+                    <form action="cart.php" method="post" class="flex-gap-xs">
                         <input type="hidden" name="action" value="add"> <!-- Action parameter: add -->
                         <input type="hidden" name="item_id" value="<?= $item['item_id'] ?>"> <!-- Item ID parameter -->
                         <input type="number" name="quantity" value="1" min="1" max="20" class="qty-input"> <!-- [SPOT-CHANGE]: min/max qty clamp -->
@@ -62,7 +62,7 @@ require_once "header.php"; // Load navigation header
 
 <!-- === 4. QUICK CART SUMMARY BAR (Shown only if cart contains items) === -->
 <?php if ($total_cart_items > 0): ?>
-    <div style="margin-top: 30px; text-align: center; background: #fff; padding: 18px 22px; border-radius: 14px; border: 1px solid #f0e4d2; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+    <div class="menu-cart-summary flex-between">
         <strong>🛒 You have <?= $total_cart_items ?> item(s) in your pre-order cart.</strong>
         <a href="cart.php" class="btn btn-primary">Review Cart &amp; Submit Order &rarr;</a>
     </div>

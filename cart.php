@@ -17,7 +17,7 @@ if ($action === 'add') {
         $cur = $_SESSION['cart'][$id]['quantity'] ?? 0; // Current quantity in cart if already added
         // Store item details & updated quantity in session cart array
         $_SESSION['cart'][$id] = ['item_id' => $id, 'name' => $item['name'], 'price' => (float)$item['price'], 'quantity' => min(20, $cur + $qty)];
-        $_SESSION['flash'] = "Added {$item['name']} to your cart! <a href='cart.php' style='margin-left:8px;font-weight:bold;color:inherit;'>View Cart &amp; Checkout &rarr;</a>";
+        $_SESSION['flash'] = "Added {$item['name']} to your cart! <a href='cart.php' class='alert-link'>View Cart &amp; Checkout &rarr;</a>";
     } else {
         $_SESSION['error'] = "Item is out of stock!";
     }
@@ -61,16 +61,16 @@ require_once "header.php"; // Load common navigation header
 <!-- === 3. CONDITIONAL DISPLAY: EMPTY CART vs ACTIVE CART === -->
 <?php if (empty($_SESSION['cart'])): ?>
     <!-- Empty Cart Card -->
-    <div class="cart-table-card" style="text-align: center; padding: 50px 20px;">
-        <div style="font-size: 3rem; margin-bottom: 12px;">🛒</div>
+    <div class="cart-table-card empty-cart-card">
+        <div class="empty-cart-icon">🛒</div>
         <h3>Your cart is currently empty!</h3>
-        <p style="color: #6b5a4a; margin: 10px 0 20px;">You haven't selected any canteen items yet.</p>
+        <p class="text-muted mt-sm mb-lg">You haven't selected any canteen items yet.</p>
         <a href="index.php" class="btn btn-primary">&larr; Return to Menu to Add Items</a>
     </div>
 <?php else: ?>
     <!-- Active Cart Items Table -->
     <div class="cart-table-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+        <div class="flex-between mb-md">
             <h3>Selected Items (<?= count($_SESSION['cart']) ?>)</h3>
             <!-- Button to clear all items -->
             <form action="cart.php" method="post" onsubmit="return confirm('Empty your cart?');">
@@ -82,7 +82,7 @@ require_once "header.php"; // Load common navigation header
         <div class="table-responsive">
             <table class="data-table">
                 <thead>
-                    <tr><th>Item Name</th><th>Unit Price</th><th style="width: 170px;">Quantity</th><th>Subtotal</th><th style="text-align: center;">Action</th></tr>
+                    <tr><th>Item Name</th><th>Unit Price</th><th class="table-qty-col">Quantity</th><th>Subtotal</th><th class="text-center">Action</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($_SESSION['cart'] as $cid => $c): $sub = $c['price'] * $c['quantity']; ?>
@@ -91,7 +91,7 @@ require_once "header.php"; // Load common navigation header
                             <td>₹<?= number_format($c['price'], 2) ?></td>
                             <td>
                                 <!-- Form to change item quantity -->
-                                <form action="cart.php" method="post" style="display: flex; gap: 5px;">
+                                <form action="cart.php" method="post" class="flex-gap-xs">
                                     <input type="hidden" name="action" value="update">
                                     <input type="hidden" name="item_id" value="<?= $cid ?>">
                                     <input type="number" name="quantity" value="<?= $c['quantity'] ?>" min="1" max="20" class="qty-input">
@@ -99,7 +99,7 @@ require_once "header.php"; // Load common navigation header
                                 </form>
                             </td>
                             <td><strong>₹<?= number_format($sub, 2) ?></strong></td>
-                            <td style="text-align: center;">
+                            <td class="text-center">
                                 <!-- Form to remove specific item -->
                                 <form action="cart.php" method="post">
                                     <input type="hidden" name="action" value="remove">
@@ -121,25 +121,25 @@ require_once "header.php"; // Load common navigation header
     </div>
 
     <!-- === 4. CUSTOMER CHECKOUT & ORDER SUBMISSION FORM === -->
-    <div class="cart-table-card" style="border-top: 3px solid #e8590c;">
-        <h3 style="margin-bottom: 10px;">Final Order Submission</h3>
-        <p style="color: #6b5a4a; margin-bottom: 20px; font-size: 0.95rem;">Please enter your name and student contact details to generate your official queue order number.</p>
+    <div class="cart-table-card cart-checkout-card">
+        <h3 class="mb-sm">Final Order Submission</h3>
+        <p class="text-muted mb-lg">Please enter your name and student contact details to generate your official queue order number.</p>
 
         <!-- Posts customer details to place_order.php -->
         <form action="place_order.php" method="post">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px;">
+            <div class="form-grid">
                 <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 5px;">Full Name / Student Name: <span style="color: red;">*</span></label>
-                    <input type="text" name="customer_name" required value="<?= htmlspecialchars($_SESSION['customer_name'] ?? '') ?>" placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 10px; border: 1px solid #d9c7b0; border-radius: 8px;">
+                    <label class="form-label">Full Name / Student Name: <span class="required-star">*</span></label>
+                    <input type="text" name="customer_name" required value="<?= htmlspecialchars($_SESSION['customer_name'] ?? '') ?>" placeholder="e.g. Rahul Sharma" class="form-input">
                 </div>
                 <div>
-                    <label style="display: block; font-weight: 600; margin-bottom: 5px;">Admission No / Mobile No: <span style="color: red;">*</span></label>
-                    <input type="text" name="contact_no" required value="<?= htmlspecialchars($_SESSION['contact_no'] ?? '') ?>" placeholder="e.g. 23JE0456 or 9876543210" style="width: 100%; padding: 10px; border: 1px solid #d9c7b0; border-radius: 8px;">
+                    <label class="form-label">Admission No / Mobile No: <span class="required-star">*</span></label>
+                    <input type="text" name="contact_no" required value="<?= htmlspecialchars($_SESSION['contact_no'] ?? '') ?>" placeholder="e.g. 23JE0456 or 9876543210" class="form-input">
                 </div>
             </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+            <div class="flex-between">
                 <a href="index.php" class="btn btn-secondary">&larr; Add More Items</a>
-                <button type="submit" class="btn btn-primary" style="font-size: 1.05rem; padding: 10px 24px;">
+                <button type="submit" class="btn btn-primary btn-lg">
                     ✅ Submit Order &amp; Generate Token (₹<?= number_format($grand_total, 2) ?>)
                 </button>
             </div>
