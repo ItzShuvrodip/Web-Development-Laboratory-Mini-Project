@@ -1,0 +1,7 @@
+# Local portable PHP binaries (>100MB)
+/php/
+
+# Agent IDE and system caches
+/.agent/
+/.system_generated/
+*.log

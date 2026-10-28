@@ -1,0 +1,541 @@
+/* ==========================================================================
+   style.css - Campus Canteen Pre-Order and Queue Management System
+   Warm Earthy Café & Canteen Palette (Espresso, Honey Amber & Warm Terracotta)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. CSS Reset & Global Layout
+   -------------------------------------------------------------------------- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background-color: #fdf6ec; /* Warm creamy café background */
+    color: #2d2218;            /* Deep espresso brown */
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 24px 20px 40px;
+    flex: 1;
+}
+
+/* Responsive Table Wrapper */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 15px;
+}
+
+/* --------------------------------------------------------------------------
+   2. Header & Navigation Bar
+   -------------------------------------------------------------------------- */
+.main-header {
+    background-color: #2d2218; /* Dark roast espresso */
+    color: #ffffff;
+    padding: 14px 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.brand-wrapper {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    color: #ffb347; /* Warm honey amber */
+    font-size: 1.35rem;
+    font-weight: 700;
+    text-decoration: none;
+    letter-spacing: -0.3px;
+}
+
+.brand-sub {
+    font-size: 0.8rem;
+    color: #f3e6d6;
+    font-weight: normal;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.nav-links a {
+    color: #f3e6d6;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.95rem;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.nav-links a:hover, .nav-links a.active {
+    color: #ffffff;
+    border-bottom-color: #ffb347;
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.cart-badge {
+    background-color: #e8590c; /* Warm terracotta orange */
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-left: 3px;
+}
+
+/* --------------------------------------------------------------------------
+   3. Notification & Status Banners
+   -------------------------------------------------------------------------- */
+.db-status-bar {
+    background-color: #fffaf2;
+    border-left: 4px solid #ffb347;
+    border-right: 1px solid #f0e4d2;
+    border-top: 1px solid #f0e4d2;
+    border-bottom: 1px solid #f0e4d2;
+    color: #6b5a4a;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    margin-bottom: 24px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.alert {
+    padding: 12px 18px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.alert-success {
+    background-color: #d3f9d8;
+    border: 1px solid #b2f2bb;
+    color: #1b5e20;
+}
+
+.alert-warning {
+    background-color: #fff3bf;
+    border: 1px solid #ffe066;
+    color: #8a6100;
+}
+
+.alert-danger {
+    background-color: #ffe3e3;
+    border: 1px solid #ffc9c9;
+    color: #a61e1e;
+}
+
+/* --------------------------------------------------------------------------
+   4. Typography & Section Headers
+   -------------------------------------------------------------------------- */
+.page-title {
+    font-size: 1.85rem;
+    margin: 0 0 6px;
+    color: #2d2218;
+    font-weight: 700;
+}
+
+.page-description {
+    color: #6b5a4a;
+    margin-top: 0;
+    margin-bottom: 22px;
+    font-size: 0.95rem;
+}
+
+/* Category Filter Tabs */
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background-color: #ffffff;
+    border: 1px solid #d9c7b0;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: #6b5a4a;
+    transition: all 0.15s ease;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background-color: #2d2218;
+    border-color: #2d2218;
+    color: #ffb347;
+}
+
+/* --------------------------------------------------------------------------
+   5. Menu Cards & Grid
+   -------------------------------------------------------------------------- */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 18px;
+}
+
+.menu-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    border: 1px solid #f0e4d2;
+}
+
+.menu-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.09);
+}
+
+.menu-card.out-of-stock {
+    background-color: #fcf9f5;
+    opacity: 0.65;
+    border-style: dashed;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+
+.item-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d2218;
+    margin-bottom: 4px;
+}
+
+.item-category {
+    font-size: 0.72rem;
+    background-color: #f6e3c8;
+    color: #8a4b08;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.item-desc {
+    font-size: 0.88rem;
+    color: #6b5a4a;
+    margin-bottom: 16px;
+    min-height: 42px;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px dashed #e8c9a0;
+    padding-top: 14px;
+}
+
+.item-price {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #e8590c; /* Warm terracotta */
+}
+
+/* Availability Badges */
+.badge {
+    align-self: flex-start;
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-available {
+    background-color: #d3f9d8;
+    color: #1b5e20;
+}
+
+.badge-unavailable {
+    background-color: #ffe3e3;
+    color: #a61e1e;
+}
+
+/* --------------------------------------------------------------------------
+   6. Buttons & Inputs
+   -------------------------------------------------------------------------- */
+.btn {
+    display: inline-block;
+    background-color: #e8590c;
+    color: #ffffff;
+    text-decoration: none;
+    border: 0;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+    background-color: #c94a08;
+}
+
+.btn-primary {
+    background-color: #e8590c;
+    color: #ffffff;
+}
+
+.btn-primary:hover {
+    background-color: #c94a08;
+}
+
+.btn-success {
+    background-color: #2f9e44;
+    color: #ffffff;
+}
+
+.btn-success:hover {
+    background-color: #2b8a3e;
+}
+
+.btn-danger {
+    background-color: #e03131;
+    color: #ffffff;
+}
+
+.btn-danger:hover {
+    background-color: #c92a2a;
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid #b9a58e;
+    color: #6b5a4a;
+}
+
+.btn-secondary:hover {
+    background-color: #f6e3c8;
+    color: #2d2218;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+
+.btn-disabled, .btn:disabled {
+    background-color: #d9c7b0;
+    color: #8a7968;
+    cursor: not-allowed;
+}
+
+.qty-input {
+    width: 62px;
+    padding: 6px 8px;
+    border: 1px solid #d9c7b0;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #2d2218;
+    background-color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   7. Cart, Tables & Checkout
+   -------------------------------------------------------------------------- */
+.cart-table-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #f0e4d2;
+    padding: 22px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    margin-bottom: 25px;
+}
+
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+table.data-table th {
+    background-color: #f6e3c8;
+    font-weight: 700;
+    color: #2d2218;
+    font-size: 0.9rem;
+    padding: 12px 14px;
+    text-align: left;
+}
+
+table.data-table td {
+    padding: 12px 14px;
+    border-bottom: 1px solid #f0e4d2;
+    color: #2d2218;
+    font-size: 0.95rem;
+}
+
+table.data-table tr:hover {
+    background-color: #fffaf2;
+}
+
+.cart-total-box {
+    background-color: #fffaf2;
+    border: 1px solid #f0e4d2;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2d2218;
+    margin-top: 15px;
+}
+
+.cart-total-box span:last-child {
+    color: #e8590c;
+}
+
+/* --------------------------------------------------------------------------
+   8. Status Badges & Pills
+   -------------------------------------------------------------------------- */
+.status-pill {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-received {
+    background-color: #e7f5ff; /* Soft blue */
+    color: #1864ab;
+}
+
+.status-preparing {
+    background-color: #fff3bf; /* Soft warm yellow/amber */
+    color: #8a6100;
+}
+
+.status-ready {
+    background-color: #d3f9d8; /* Fresh soft green */
+    color: #1b5e20;
+    animation: pulseSoft 1.8s infinite;
+}
+
+.status-completed {
+    background-color: #e9ecef; /* Neutral soft gray */
+    color: #495057;
+}
+
+.empty-col-msg {
+    text-align: center;
+    color: #8a7968;
+    padding: 24px 0;
+    font-size: 0.9rem;
+}
+
+@keyframes pulseSoft {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* --------------------------------------------------------------------------
+   9. Order Success Receipt Box
+   -------------------------------------------------------------------------- */
+.receipt-card {
+    background-color: #ffffff;
+    border: 1px solid #f0e4d2;
+    border-radius: 18px;
+    padding: 34px 28px;
+    max-width: 480px;
+    margin: 20px auto;
+    text-align: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.receipt-card .tick {
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    margin: 0 auto 10px;
+    border-radius: 50%;
+    background-color: #d3f9d8;
+    color: #1b5e20;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.order-token {
+    font-size: 2.5rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: #e8590c;
+    background-color: #fffaf2;
+    padding: 10px 24px;
+    border-radius: 12px;
+    display: inline-block;
+    margin: 12px 0 16px;
+    border: 3px dashed #f4b183;
+}
+
+/* --------------------------------------------------------------------------
+   10. Footer
+   -------------------------------------------------------------------------- */
+.main-footer {
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #f0e4d2;
+    color: #8a7968;
+    font-size: 0.85rem;
+    background-color: #fdf6ec;
+}
